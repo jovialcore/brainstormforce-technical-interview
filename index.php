@@ -174,8 +174,132 @@ $output_arr = array(
 
 
 
+    // $info = Teacher::get(['name', 'number']);
+        //how do you properly pull the students and the ones related with their teachers
 
 
+
+        $source_arr = array(
+            '51171#2'  => array(
+                'download_id'  => 51171,
+                'variation_id' => 2,
+            ),
+            '143516#2' => array(
+                'download_id'  => 143516,
+                'variation_id' => 2,
+            ),
+            '396346#2' => array(
+                'download_id'  => 396346,
+                'variation_id' => 2,
+            ),
+            '143516#1' => array(
+                'download_id'  => 143516,
+                'variation_id' => 1,
+            ),
+            '396344#2' => array(
+                'download_id'  => 396344,
+                'variation_id' => 2,
+            ),
+            '396346#1' => array(
+                'download_id'  => 396346,
+                'variation_id' => 1,
+            ),
+            '396344#1' => array(
+                'download_id'  => 396344,
+                'variation_id' => 1,
+            ),
+        );
+
+        $sort_order_downloads = array(143516, 396344, 396346);
+      
+        // $b = uksort($source_arr, function ($a, $b ) use($sod) {
+
+
+        //     return ($a < $b ) ? -1 : 1;
+        // });
+
+        // usort($source_arr, function ($a, $b) use ($sort_order_downloads) {
+
+        //     $a_order = array_search($a['download_id'], $sort_order_downloads);
+        //     $b_order = array_search($b['download_id'], $sort_order_downloads);
+        //     if ($a_order === $b_order) {
+        //         return 0;
+        //     }
+
+        //     return ($a_order < $b_order) ? -1 : 1;
+        // });
+
+        $sort_order_downloads = array(143516, 396344, 396346);
+        $output_arr = array();
+
+        foreach ($sort_order_downloads as $download_id) {
+            foreach ($source_arr as $key => $value) {
+                if ($value['download_id'] == $download_id) {
+                    // dump($value['download_id']);
+                    $output_arr[$key] = $value;
+                }
+            }
+        }
+
+        // add the last item with key 51171#2
+        $output_arr = array_merge($output_arr, $source_arr);
+        $source_arr = array(
+            '51171#2'  => array(
+                'download_id'  => 51171,
+                'variation_id' => 2,
+            ),
+            '143516#2' => array(
+                'download_id'  => 143516,
+                'variation_id' => 2,
+            ),
+            // ...
+        );
+        $sort_order_downloads = array(143516, 396344, 396346);
+
+        // Measure the time it takes to sort the array using uarsort()
+        $start_time = microtime(true);
+        uasort($source_arr, function ($a, $b) use ($sort_order_downloads) {
+            return array_search($a['download_id'], $sort_order_downloads) > array_search($b['download_id'], $sort_order_downloads);
+        });
+        $uarsort_time = microtime(true) - $start_time;
+
+        // Measure the time it takes to sort the array using the code snippet from the previous answer
+        $start_time = microtime(true);
+        $output_arr = array();
+        foreach ($sort_order_downloads as $download_id) {
+            foreach ($source_arr as $key => $value) {
+                if ($value['download_id'] == $download_id) {
+                    $output_arr[$key] = $value;
+                    unset($source_arr[$key]);
+                }
+            }
+        }
+        $output_arr = array_merge($output_arr, $source_arr);
+        $custom_sort_time = microtime(true) - $start_time;
+
+        // Compare the results
+        echo "uarsort() took $uarsort_time seconds\n";
+        echo "Custom sort took $custom_sort_time seconds\n";
+
+        
+        //How is this optimal, the traditional way of going about this will be using uasort() and a couple of array_search() to che functions. This will take time as  the array_search() will have to be called repeadtedly. Also, with my solution, you get the last it back, i.e the item with key =   51171#2 than having to unset and push it back towards the end of the array 
+
+        uasort($source_arr, function ($a, $b) use ($sort_order_downloads) {
+
+            $aDownloadId = $a['download_id'];
+            $bDownloadId = $b['download_id'];
+
+            $aIndex = array_search($aDownloadId, $sort_order_downloads);
+            $bIndex = array_search($bDownloadId, $sort_order_downloads);
+
+            if (in_array([$a, $b], $sort_order_downloads)) {
+                return 0;
+            }
+            // using space operateor
+            return $aIndex <=> $bIndex;
+        });
+
+        $source_arr['51171#2'] = array_shift($source_arr);
 ?>
 <!DOCTYPE html>
 <html lang="en">
